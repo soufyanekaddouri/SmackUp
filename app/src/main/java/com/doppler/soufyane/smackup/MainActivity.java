@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -30,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     // CONTACTS LIST
     ListView contactsList;
     ListAdapter contactsAdapter;
-    // RANDOM MESSAGES
+
+
 
 
     @Override
@@ -49,11 +51,19 @@ public class MainActivity extends AppCompatActivity {
 
         sendSMS = SmsManager.getDefault();
          // AN ARRAY OF CONTACTS
-        String[] contactsArray = {"Soufyane", "Soufyane", "Soufyane", "Soufyane", "Soufyane"};
-        // CONTACTS-LISTVIEW AND THE ADAPTER ( contactsAdapter)
+        String[] contactsArray = {"Soufyane", "Mootje", "asaskd"};
+
         contactsList = (ListView) findViewById(R.id.contactsView);
         contactsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, contactsArray);
         contactsList.setAdapter(contactsAdapter);
+
+        contactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() { @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            String pickedContact = String.valueOf(contactsList.getItemAtPosition(position));
+            Toast.makeText(MainActivity.this, pickedContact, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 
