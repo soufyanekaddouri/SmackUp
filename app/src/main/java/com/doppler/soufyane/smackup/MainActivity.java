@@ -2,6 +2,7 @@ package com.doppler.soufyane.smackup;
 
 import android.app.VoiceInteractor;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +13,9 @@ import android.telephony.SmsManager;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -24,8 +28,10 @@ public class MainActivity extends AppCompatActivity {
     // SMS MANAGER
     SmsManager sendSMS;
     // CONTACTS LIST
-    ListView contacts;
+    ListView contactsList;
+    ListAdapter contactsAdapter;
     // RANDOM MESSAGES
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,17 +41,27 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         // ALL VARIABLES DECLARED HERE
         addContact = (FloatingActionButton) findViewById(R.id.addContactView);
+
         OptionsIntent = new Intent(this, OptionsActivity.class);
+
         pickContact    = new Intent(Intent.ACTION_PICK);
         pickContact.setType(ContactsContract.Contacts.CONTENT_TYPE);
-        sendSMS = SmsManager.getDefault();
-        contacts = (ListView) findViewById(R.id.contactsView);
 
+        sendSMS = SmsManager.getDefault();
+         // AN ARRAY OF CONTACTS
+        String[] contactsArray = {"Soufyane", "Soufyane", "Soufyane", "Soufyane", "Soufyane"};
+        // CONTACTS-LISTVIEW AND THE ADAPTER ( contactsAdapter)
+        contactsList = (ListView) findViewById(R.id.contactsView);
+        contactsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, contactsArray);
+        contactsList.setAdapter(contactsAdapter);
     }
-    // ADD A CONTACT FOR AUTOMATIC SMS SENDING
+
+
+
+
+    // ADD A CONTACT (Material Design Button)
     public void addContactListener(View v) {
         startActivity(pickContact);
-//        sendSMS.sendTextMessage("+31624257825", "+31637305151", "Test",);
     }
 
 
@@ -66,10 +82,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         // WHEN CLICKED ON SELECTED CHOICE:
         if (id == R.id.action_options) { startActivity(OptionsIntent); }
-
-        if (id == R.id.action_about) {
-            Toast.makeText(this, "Developer: Soufyane Kaddouri", Toast.LENGTH_LONG);
-        }
+        if (id == R.id.action_about) { Toast.makeText(this, "Developer: Soufyane Kaddouri", Toast.LENGTH_LONG).show(); }
         return super.onOptionsItemSelected(item);
     }
 }
