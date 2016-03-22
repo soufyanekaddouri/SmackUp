@@ -21,7 +21,7 @@ public class Contact {
     }
 
     public String toString() {
-        return getName() + "("+ getNumber() + ")";
+        return getName() + " " + "("+ getNumber() + ")";
     }
 
 }
