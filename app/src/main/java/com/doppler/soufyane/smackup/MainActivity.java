@@ -23,6 +23,10 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+
+import com.bugsnag.android.Bugsnag;
+import com.bugsnag.android.Client;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,12 +42,14 @@ public class MainActivity extends AppCompatActivity {
     static final int PICK_CONTACT=1;
     ArrayList contacts;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Bugsnag.init(this);
 
         pickContact    = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         pickContact.setType(ContactsContract.Contacts.CONTENT_TYPE);
@@ -58,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, pickedContact, Toast.LENGTH_LONG).show();
             }
         });
+
+        Bugsnag.notify(new RuntimeException("Non-fatal"));
     }
 
     // ADD A CONTACT (Material Design Button)
@@ -99,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                             contactName   = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                             contactNumber = phones.getString(phones.getColumnIndex("data1"));
                             contacts.add(new Contact(contactName, contactNumber));
-                            contactsAdapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, contacts);
+                            contactsAdapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_multiple_choice, contacts);
                             contactsList.setAdapter(contactsAdapter);
                         }
                     }
@@ -112,11 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void doubleCheck() {
-        // SCHRIJF EEN IF STATEMENT DIE KIJKT OF JE NIET AL
-        // EEN CONTACT MET DEZELFDE NAAM IN JE LIJST HEBT ZITTEN,
-        // ZO JA, TOAST EEN BERICHT DAT HET NIET MOGELIJK IS.
-    }
 
+    }
 
 
 
