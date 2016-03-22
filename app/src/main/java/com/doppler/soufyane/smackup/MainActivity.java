@@ -22,8 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
-
 import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Client;
 
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     String contactNumber;
     static final int PICK_CONTACT=1;
     ArrayList contacts;
-
+    //comment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
