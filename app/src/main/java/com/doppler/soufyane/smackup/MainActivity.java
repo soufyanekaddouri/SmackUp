@@ -23,23 +23,20 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
-    // MATERIAL DESIGN FLOATING ACTION BUTTON
+
     FloatingActionButton addContact;
-    // ALL INTENTS
     Intent OptionsIntent;
     Intent pickContact;
-    // SMS MANAGER
     SmsManager sendSMS;
-    // CONTACTS LIST
     ListView contactsList;
     ListAdapter contactsAdapter;
-    // CONTACT INFO
     String contactName;
-    int      contactNumber;
+    String contactNumber;
     static final int PICK_CONTACT=1;
-
-
+    ArrayList contacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,57 +44,37 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // ALL VARIABLES DECLARED HERE
-        addContact = (FloatingActionButton) findViewById(R.id.addContactView);
-
-        OptionsIntent = new Intent(this, OptionsActivity.class);
 
         pickContact    = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         pickContact.setType(ContactsContract.Contacts.CONTENT_TYPE);
-
-        sendSMS = SmsManager.getDefault();
-         // AN ARRAY OF CONTACTS
-        String[] contactsArray = {};
-
-        contactsList = (ListView) findViewById(R.id.contactsView);
-        contactsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, contactsArray);
-        contactsList.setAdapter(contactsAdapter);
+        addContact     = (FloatingActionButton) findViewById(R.id.addContactView);
+        OptionsIntent  = new Intent(this, OptionsActivity.class);
+        contacts       = new ArrayList<Contact>();
+        contactsList   = (ListView) findViewById(R.id.contactsView);
 
         contactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() { @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
             String pickedContact = String.valueOf(contactsList.getItemAtPosition(position));
             Toast.makeText(MainActivity.this, pickedContact, Toast.LENGTH_LONG).show();
-
             }
         });
     }
 
-
-
-
-
     // ADD A CONTACT (Material Design Button)
     public void addContactListener(View v) {
         startActivityForResult(pickContact, PICK_CONTACT);
-
     }
 
-    // MENU AND OPTIONS
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    @Override public boolean onCreateOptionsMenu(Menu menu) { getMenuInflater().inflate(R.menu.menu_main, menu); return true; }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        // WHEN CLICKED ON SELECTED CHOICE:
-        if (id == R.id.action_options) { startActivity(OptionsIntent); }
-        if (id == R.id.action_about) { Toast.makeText(this, "Developer: Soufyane Kaddouri", Toast.LENGTH_LONG).show(); }
-        return super.onOptionsItemSelected(item);
-    }
+        if (id == R.id.action_options) {
+            startActivity(new Intent(getApplicationContext(), OptionsActivity.class).putExtra("contactName", contactName).putExtra("contactNumber", contactNumber));
+        }
+        // WHEN YOU CLICK ON ABOUT , YOU SEE MY NAME
+        if (id == R.id.action_about) { Toast.makeText(this, "Developer: Soufyane Kaddouri", Toast.LENGTH_LONG).show(); } return super.onOptionsItemSelected(item);}
 
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
@@ -106,12 +83,9 @@ public class MainActivity extends AppCompatActivity {
         switch (reqCode) {
             case (PICK_CONTACT) :
                 if (resultCode == Activity.RESULT_OK) {
-
                     Uri contactData = data.getData();
                     Cursor c =  getContentResolver().query(contactData, null, null, null, null);
                     if (c.moveToFirst()) {
-
-
                         String id =c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
                         String hasPhone =c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
@@ -120,18 +94,33 @@ public class MainActivity extends AppCompatActivity {
                                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
                                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ id,
                                     null, null);
+
                             phones.moveToFirst();
-                            contactName = phones.getString(phones.getColumnIndex("data1"));
-                            System.out.println("number is:"+contactName);
+                            contactName   = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                            contactNumber = phones.getString(phones.getColumnIndex("data1"));
+                            contacts.add(new Contact(contactName, contactNumber));
+                            contactsAdapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, contacts);
+                            contactsList.setAdapter(contactsAdapter);
                         }
-                        String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-
-
                     }
                 }
                 break;
         }
     }
+
+
+
+
+    public void doubleCheck() {
+        // SCHRIJF EEN IF STATEMENT DIE KIJKT OF JE NIET AL
+        // EEN CONTACT MET DEZELFDE NAAM IN JE LIJST HEBT ZITTEN,
+        // ZO JA, TOAST EEN BERICHT DAT HET NIET MOGELIJK IS.
+    }
+
+
+
+
+
 
 
 

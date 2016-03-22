@@ -2,5 +2,5 @@
     <string name="app_name">SmackUp</string>
     <string name="app_name_options">SmackUp Options</string>
     <string name="action_options">Options</string>
-    <string name="action_about">About</string>
+    <string name="action_about">Developer</string>
 </resources>
