@@ -1,7 +1,9 @@
 package com.doppler.soufyane.smackup;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.VoiceInteractor;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -22,6 +24,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+
 import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Client;
 
@@ -35,11 +39,20 @@ public class MainActivity extends AppCompatActivity {
     SmsManager sendSMS;
     ListView contactsList;
     ListAdapter contactsAdapter;
+    // GET CONTACT INFO VARIABLES
+    String hasPhoneNumber;
     String contactName;
     String contactNumber;
+    String id;
+    Cursor c;
+    Cursor phones;
+    Uri contactData;
+
     static final int PICK_CONTACT=1;
     ArrayList contacts;
-    //comment
+
+    AlertDialog.Builder reportError;
+    String errorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,14 +69,16 @@ public class MainActivity extends AppCompatActivity {
         contacts       = new ArrayList<Contact>();
         contactsList   = (ListView) findViewById(R.id.contactsView);
 
-        contactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() { @Override
+        reportError = new AlertDialog.Builder(this);
+
+
+        contactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            String pickedContact = String.valueOf(contactsList.getItemAtPosition(position));
-            Toast.makeText(MainActivity.this, pickedContact, Toast.LENGTH_LONG).show();
+                String pickedContact = String.valueOf(contactsList.getItemAtPosition(position));
+                Toast.makeText(MainActivity.this,pickedContact, Toast.LENGTH_LONG).show();
             }
         });
-
-        Bugsnag.notify(new RuntimeException("Non-fatal"));
     }
 
     // ADD A CONTACT (Material Design Button)
@@ -89,41 +104,56 @@ public class MainActivity extends AppCompatActivity {
         switch (reqCode) {
             case (PICK_CONTACT) :
                 if (resultCode == Activity.RESULT_OK) {
-                    Uri contactData = data.getData();
-                    Cursor c =  getContentResolver().query(contactData, null, null, null, null);
+                    contactData        = data.getData();
+                    c                  = getContentResolver().query(contactData, null, null, null, null);
                     if (c.moveToFirst()) {
-                        String id =c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
-                        String hasPhone =c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-                        if (hasPhone.equalsIgnoreCase("1")) {
-                            Cursor phones = getContentResolver().query(
-                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ id,
-                                    null, null);
-
-                            phones.moveToFirst();
-                            contactName   = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                            contactNumber = phones.getString(phones.getColumnIndex("data1"));
-                            contacts.add(new Contact(contactName, contactNumber));
-                            contactsAdapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_multiple_choice, contacts);
-                            contactsList.setAdapter(contactsAdapter);
-                        }
+                        id             = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+                        hasPhoneNumber = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                        errorContaining();
                     }
                 }
                 break;
         }
     }
 
+    public Boolean errorContaining() {
+        // CHECK IF CONTACT HAS PHONE NUMBER, 1 = TRUE, 0 = FALSE
+        if (hasPhoneNumber.equalsIgnoreCase("1")) {
+            phones = getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ id, null, null); phones.moveToFirst();
 
+            contactName       = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+            contactNumber     = phones.getString(phones.getColumnIndex("data1")).toString();
+            contactsAdapter   = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_multiple_choice, contacts);
+            contactsList.setAdapter(contactsAdapter);
+            contacts.add(new Contact(contactName, contactNumber));
 
+            return false;
+        }
 
-    public void doubleCheck() {
-
+        if (hasPhoneNumber.equalsIgnoreCase("0")) {
+            errorMessage = "No Phone Number Found!";
+            reportThisError();
+            return true;
+        }
+        return false;
     }
 
-
-
-
+    // SELF MADE METHOD
+    public void reportThisError() {
+        reportError.setMessage(errorMessage).setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MainActivity.this, "CONTACT DEVELOPER FOR HELP", Toast.LENGTH_LONG);
+            } }).setNegativeButton("Close App", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        reportError.create().show();
+    }
 
 
 
