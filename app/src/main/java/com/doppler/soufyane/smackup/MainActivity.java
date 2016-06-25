@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
     AlertDialog.Builder reportError;
     String errorMessage;
 
+    SmsManager smsManager = SmsManager.getDefault();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,14 +74,15 @@ public class MainActivity extends AppCompatActivity {
 
         reportError = new AlertDialog.Builder(this);
 
-
         contactsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String pickedContact = String.valueOf(contactsList.getItemAtPosition(position));
-                Toast.makeText(MainActivity.this,pickedContact, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, pickedContact, Toast.LENGTH_LONG).show();
             }
         });
+
+
     }
 
     // ADD A CONTACT (Material Design Button)
@@ -140,22 +144,30 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+
+
     // SELF MADE METHOD
     public void reportThisError() {
-        reportError.setMessage(errorMessage).setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(MainActivity.this, "CONTACT DEVELOPER FOR HELP", Toast.LENGTH_LONG);
-            } }).setNegativeButton("Close App", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
+        reportError.setMessage(errorMessage)
+                .setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, "CONTACT DEVELOPER FOR HELP", Toast.LENGTH_LONG);
+                    }
+                })
+                .setNegativeButton("Close App", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
             }
         });
         reportError.create().show();
     }
 
+    public void sendMessage() {
+        smsManager.sendTextMessage("phoneNo", null, "sms message", null, null);
 
+    }
 
 
 }
